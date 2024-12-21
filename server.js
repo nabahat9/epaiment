@@ -14,15 +14,22 @@ app.get("/users", (req, res) => {
 // post a new user
 app.post("/users", async (req, res) => {
   try {
+    // Validate required fields
+    if (!req.body.email || !req.body.name || !req.body.password) {
+      return res.status(400).send("Missing required fields");
+    }
+
     // Check if the user with the same email already exists
     const existingUser = users.find((user) => user.email === req.body.email);
     if (existingUser) {
       return res.status(400).send("User already exists");
     }
 
-    // If the user doesn't exist, proceed with creating the new user
+    // Hash the password
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
+    // Create the user and store it
     const user = {
       name: req.body.name,
       email: req.body.email,
@@ -39,18 +46,23 @@ app.post("/users", async (req, res) => {
 
 // login to an existing user
 app.post("/users/login", async (req, res) => {
+  // Validate that the email and password are provided
+  if (!req.body.email || !req.body.password) {
+    return res.status(400).send("Missing required fields");
+  }
+
   const user = users.find((user) => user.email === req.body.email);
   if (user == null) {
     return res.status(400).send("Cannot find user");
   }
   try {
     if (await bcrypt.compare(req.body.password, user.password)) {
-      res.send("Success");
+      res.send("Login successful");
     } else {
-      res.send("not allowed");
+      res.send("Incorrect password");
     }
   } catch {
-    res.status(500).send();
+    res.status(500).send("Error during login");
   }
 });
 
