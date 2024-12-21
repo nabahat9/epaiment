@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 app.use(express.json());
 
@@ -11,8 +11,7 @@ app.get("/users", (req, res) => {
   res.json(users);
 });
 
-
-// post a new user 
+// post a new user
 app.post("/users", async (req, res) => {
   try {
     // Check if the user with the same email already exists
@@ -24,7 +23,11 @@ app.post("/users", async (req, res) => {
     // If the user doesn't exist, proceed with creating the new user
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
-    const user = {name:req.body.name , email: req.body.email, password: hashedPassword };
+    const user = {
+      name: req.body.name,
+      email: req.body.email,
+      password: hashedPassword,
+    };
     users.push(user);
 
     // Respond with 201 (Created) status code
@@ -33,7 +36,6 @@ app.post("/users", async (req, res) => {
     res.status(500).send("Error creating user");
   }
 });
-
 
 // login to an existing user
 app.post("/users/login", async (req, res) => {
@@ -52,4 +54,7 @@ app.post("/users/login", async (req, res) => {
   }
 });
 
-app.listen(3000);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
