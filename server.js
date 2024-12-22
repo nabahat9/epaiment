@@ -1,17 +1,20 @@
 const express = require("express");
-const app = express();
+const cors = require("cors"); // Import cors
 const bcrypt = require("bcryptjs");
 
-app.use(express.json());
+const app = express();
+
+app.use(express.json()); // Middleware to parse JSON
+app.use(cors()); // Enable CORS
 
 const users = [];
 
-// get all users
+// Get all users
 app.get("/users", (req, res) => {
   res.json(users);
 });
 
-// post a new user
+// Post a new user
 app.post("/users", async (req, res) => {
   try {
     // Validate required fields
@@ -44,7 +47,7 @@ app.post("/users", async (req, res) => {
   }
 });
 
-// login to an existing user
+// Login to an existing user
 app.post("/users/login", async (req, res) => {
   // Validate that the email and password are provided
   if (!req.body.email || !req.body.password) {
